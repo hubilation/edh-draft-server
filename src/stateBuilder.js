@@ -35,8 +35,6 @@ export function buildStateFromDraftAndPicks(draft, picks) {
       pickOrder: draft.get("players")
   });
 
-  console.log("previousPicks", state.get("previousPicks"));
-
   return state;
 }
 

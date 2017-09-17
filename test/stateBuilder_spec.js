@@ -16,7 +16,6 @@ describe("stateBuilder", () => {
 
   it("should get picks", ()=>{
     var picks = getPicks(1);
-    console.log(picks);
   });
 
   it("should build the state", ()=>{
