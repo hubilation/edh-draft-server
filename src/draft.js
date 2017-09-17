@@ -1,24 +1,7 @@
 import { List, Map } from "immutable";
 
-export default class PickBuilder {
-  buildPicks(activeDraft) {
-    var picks = [];
-    for (var round = 0; round < activeDraft.totalRounds; round++) {
-      activeDraft.playerIds.forEach(function(playerId, playerIndex) {
-        let pick = {
-          id: round * playerIndex,
-          playerId: playerId,
-          draftId: activeDraft.id
-        };
-        picks.push(pick);
-      }, this);
-    }
-    return picks;
-  }
-}
-
 export function draft(state, cardId) {
-  var newState = state.merge(
+  let newState = state.merge(
     Map({
       "activePick": buildNextPick(state),
       "previousPicks": addPreviousPick(state, cardId),
@@ -30,16 +13,16 @@ export function draft(state, cardId) {
 }
 
 export function addPreviousPick(state, cardId){
-  var previousPicks = state.get("previousPicks");
-  var addedPick = previousPicks.splice(0, 0, setPick(state, cardId));
+  let previousPicks = state.get("previousPicks");
+  let addedPick = previousPicks.splice(0, 0, setPick(state, cardId));
 
   return addedPick;
 }
 
 export function setPick(state, cardId) {
-  const currentPick = state.get("activePick");
+  let currentPick = state.get("activePick");
 
-  const picked = currentPick.merge({
+  let picked = currentPick.merge({
     cardId: cardId
   });
 
@@ -47,15 +30,12 @@ export function setPick(state, cardId) {
 }
 
 export function buildNextPick(state) {
-  const currentPick = state.get("activePick");
+  let currentPick = state.get("activePick");
+  let lastPlayerId = currentPick.get("playerId");
+  let pickOrder = state.get("pickOrder");
+  let lastPlayerIndex = pickOrder.findIndex(p => p === lastPlayerId);
 
-  var lastPlayerId = currentPick.get("playerId");
-
-  const pickOrder = state.get("pickOrder");
-
-  var lastPlayerIndex = pickOrder.findIndex(p => p === lastPlayerId);
-
-  const direction = state.get("direction");
+  let direction = state.get("direction");
 
   let nextIndex = 0;
   if (direction === "ascending") {
@@ -77,15 +57,11 @@ export function buildNextPick(state) {
 }
 
 export function setDirectionIfNecessary(state) {
-  const currentPick = state.get("activePick");
-
-  var lastPlayerId = currentPick.get("playerId");
-
-  const pickOrder = state.get("pickOrder");
-
-  var lastPlayerIndex = pickOrder.findIndex(p => p === lastPlayerId);
-
-  const direction = state.get("direction");
+  let currentPick = state.get("activePick");
+  let lastPlayerId = currentPick.get("playerId");
+  let pickOrder = state.get("pickOrder");
+  let lastPlayerIndex = pickOrder.findIndex(p => p === lastPlayerId);
+  let direction = state.get("direction");
 
   let nextIndex = 0;
   if (direction === "ascending") {
