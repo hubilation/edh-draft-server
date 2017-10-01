@@ -4,32 +4,30 @@ import { Strategy } from "passport-local";
 import User from './model/user';
 import md5 from 'js-md5';
 
-export function configurePassport(){
+export function configurePassport() {
     passport.use(
-        new Strategy(function (username, password, done) {
-            User.findOne({userName:username}, (err, user)=>{
-                if(user){
+        new Strategy({ passReqToCallback: true }, function (req, username, password, done) {
+            User.findOne({ userName: username }, (err, user) => {
+                if (user) {
                     var hashedPassword = md5(password);
-                    if(user.password === hashedPassword){
+                    if (user.password === hashedPassword) {
                         return done(null, user);
                     }
-                    return done("Password invalid.");
+                    return done(null, false, {message: "Incorrect password"});
 
-                }else{
-                    return done("User does not exist");
+                } else {
+                    return done(null, false, {message: "User does not exist"});
                 }
             });
         })
     );
-    
+
     passport.serializeUser(function (user, done) {
-        done(null, user.id);
+        done(null, user);
     });
-    
-    passport.deserializeUser(function (id, done) {
-        User.findById(id, (err, user)=>{
-            done(null, user);
-        })
+
+    passport.deserializeUser(function (user, done) {
+        done(null, user);
     });
 }
 

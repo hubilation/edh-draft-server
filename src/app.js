@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import path from "path";
 import passport from "passport";
 import {ensureLoggedIn} from 'connect-ensure-login';
+import flash from "connect-flash";
 
 import {configurePassport} from './authentication';
 
@@ -23,6 +24,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 
 app.get("/login", function(req, res) {
   res.sendFile(path.join(__dirname, "login.html"));
@@ -31,8 +33,9 @@ app.get("/login", function(req, res) {
 app.post(
   "/login",
   passport.authenticate("local", {
-    successRedirect: "/butts",
-    failureRedirect: "/fail"
+    successRedirect: "/loggedin",
+    failureRedirect: "/failedlogin",
+    failureFlash: true
   }),
   function(req, res) {
     console.log("got login");
@@ -47,12 +50,18 @@ app.get(
   }
 );
 
-app.get("/butts", ensureLoggedIn('/login'), function(req, res) {
-  res.send(`hello ${req.user.userName}, you logged in, sort of`);
+app.get("/loggedin", ensureLoggedIn('/login'), function(req, res) {
+  res.json({
+      loggedIn: true
+  });
 });
 
-app.get("/fail", function(req, res) {
-  res.send("fuckin idiot");
+app.get("/failedlogin", function(req, res) {
+    var flash = req.flash();
+    res.json({
+        loggedIn: false,
+        message: flash.error[0]
+    });
 });
 
 db.once('open', ()=>{
