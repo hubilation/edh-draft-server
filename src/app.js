@@ -5,27 +5,17 @@ import path from "path";
 import passport from "passport";
 import {ensureLoggedIn} from 'connect-ensure-login';
 
-import { Strategy } from "passport-local";
-import {testConnection} from "./mongoRepo";
+import {configurePassport} from './authentication';
+
+import { MongoClient } from "mongodb";
+import logger from 'winston';
+import db from './db';
+import {listAll, createUser, getUser} from './userRepo';
 
 
-passport.use(
-  new Strategy(function(username, password, done) {
-    return done(null, { id: 1, email: "test", name: "steve" });
-  })
-);
-
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  done(null, { id: 1, email: "test", name: "steve" });
-});
-
+configurePassport();
 var app = express();
 
-// app.configure(function(){
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(
@@ -33,10 +23,9 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-// });
 
 app.get("/login", function(req, res) {
-  res.sendFile(path.join(__dirname, "src", "login.html"));
+  res.sendFile(path.join(__dirname, "login.html"));
 });
 
 app.post(
@@ -59,14 +48,14 @@ app.get(
 );
 
 app.get("/butts", ensureLoggedIn('/login'), function(req, res) {
-  res.send(`hello ${req.user.name}, you logged in, sort of`);
+  res.send(`hello ${req.user.userName}, you logged in, sort of`);
 });
 
 app.get("/fail", function(req, res) {
   res.send("fuckin idiot");
 });
 
+db.once('open', ()=>{
+    app.listen(5000);
+})
 
-testConnection();
-
-app.listen(5000);
