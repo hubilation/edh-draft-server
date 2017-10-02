@@ -27,13 +27,15 @@ app.use(passport.session());
 app.use(flash());
 
 app.get("/login", function(req, res) {
-  res.sendFile(path.join(__dirname, "login.html"));
+    res.json({
+        loggedIn: false
+    });
 });
 
 app.post(
   "/login",
   passport.authenticate("local", {
-    successRedirect: "/loggedin",
+    successReturnToOrRedirect: "/",
     failureRedirect: "/failedlogin",
     failureFlash: true
   }),
